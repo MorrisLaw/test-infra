@@ -228,3 +228,175 @@ func TestLGTMComment(t *testing.T) {
 		}
 	}
 }
+
+func TestPRLabelChecker(t *testing.T) {
+	testCases := []struct {
+		name       string
+		labels     []string
+		check      string
+		shouldPass bool
+	}{
+		{
+			name:       "no labels",
+			labels:     []string{},
+			check:      "good-pr",
+			shouldPass: false,
+		},
+		{
+			name:       "no labels, check empty",
+			labels:     []string{},
+			check:      "",
+			shouldPass: false,
+		},
+		{
+			name:       "some labels, check empty",
+			labels:     []string{"some-label", "lgtm"},
+			check:      "",
+			shouldPass: false,
+		},
+		{
+			name:       "some labels, does not have check",
+			labels:     []string{"some-label", "definitely-not-lgtm"},
+			check:      "good-pr",
+			shouldPass: false,
+		},
+		{
+			name:       "has label last",
+			labels:     []string{"some-label", "definitely-not-lgtm", "good-pr"},
+			check:      "good-pr",
+			shouldPass: true,
+		},
+		{
+			name:       "has label first",
+			labels:     []string{"good-pr", "some-label", "definitely-not-lgtm"},
+			check:      "good-pr",
+			shouldPass: true,
+		},
+	}
+	for _, test := range testCases {
+		fc := &fakegithub.FakeClient{}
+		for _, label := range test.labels {
+			fc.AddLabel("k8s", "kuber", 42, label)
+		}
+		res, err := prLabelChecker(fc, nil, "k8s", "kuber", 42)(test.check)
+		if err != nil {
+			t.Errorf("Unexpected error from prLabelChecker on test '%s': %v.", test.name, err)
+			continue
+		}
+		if res != test.shouldPass {
+			var not string
+			if !test.shouldPass {
+				not = "not "
+			}
+			t.Errorf(
+				"Error on test '%s': %q should %sbe recognized as a label on #42 which has labels %q.",
+				test.name,
+				test.check,
+				not,
+				test.labels,
+			)
+		}
+	}
+}
+
+type githubUnlabeler struct {
+	err           error
+	labelsRemoved []string
+}
+
+func (c *githubUnlabeler) RemoveLabel(owner, repo string, pr int, label string) error {
+	c.labelsRemoved = append(c.labelsRemoved, label)
+	return c.err
+}
+
+func TestHandlePullRequest(t *testing.T) {
+	cases := []struct {
+		name           string
+		event          github.PullRequestEvent
+		removeLabelErr error
+
+		err           error
+		labelsRemoved []string
+	}{
+		{
+			name: "pr_synchronize, no RemoveLabel error",
+			event: github.PullRequestEvent{
+				Action: "synchronize",
+				PullRequest: github.PullRequest{
+					Number: 101,
+					Base: github.PullRequestBranch{
+						Repo: github.Repo{
+							Owner: github.User{
+								Login: "kubernetes",
+							},
+							Name: "kubernetes",
+						},
+					},
+				},
+			},
+			labelsRemoved: []string{lgtmLabel},
+		},
+		{
+			name: "pr_assigned",
+			event: github.PullRequestEvent{
+				Action: "assigned",
+			},
+		},
+		{
+			name: "pr_synchronize, with RemoveLabel github.LabelNotFound error",
+			event: github.PullRequestEvent{
+				Action: "synchronize",
+				PullRequest: github.PullRequest{
+					Number: 101,
+					Base: github.PullRequestBranch{
+						Repo: github.Repo{
+							Owner: github.User{
+								Login: "kubernetes",
+							},
+							Name: "kubernetes",
+						},
+					},
+				},
+			},
+			removeLabelErr: &github.LabelNotFound{
+				Owner:  "kubernetes",
+				Repo:   "kubernetes",
+				Number: 101,
+				Label:  lgtmLabel,
+			},
+			labelsRemoved: []string{lgtmLabel},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			fakeGitHub := &githubUnlabeler{}
+			err := handlePullRequest(fakeGitHub, c.event)
+
+			if err != nil && c.err == nil {
+				t.Fatalf("handlePullRequest error: %v", err)
+			}
+
+			if err == nil && c.err != nil {
+				t.Fatalf("handlePullRequest wanted error: %v, got nil", c.err)
+			}
+
+			if got, want := err, c.err; got != want {
+				t.Fatalf("handlePullRequest error mismatch: got %v, want %v", got, want)
+			}
+
+			if got, want := len(fakeGitHub.labelsRemoved), len(c.labelsRemoved); got != want {
+				t.Logf("labelsRemoved: got %v, want: %v", fakeGitHub.labelsRemoved, c.labelsRemoved)
+				t.Fatalf("labelsRemoved length mismatch: got %d, want %d", got, want)
+			}
+
+			for i, k := range c.labelsRemoved {
+				if got, want := k, fakeGitHub.labelsRemoved[i]; got != want {
+					t.Logf("labelsRemoved: got %v, want: %v", fakeGitHub.labelsRemoved, c.labelsRemoved)
+					t.Fatalf("at index %d got key: %s, want key: %s", i, got, want)
+					break
+				}
+			}
+		})
+	}
+}
