@@ -251,7 +251,7 @@ func TestHandlePullRequest(t *testing.T) {
 		{
 			name: "pr_synchronize, no RemoveLabel error",
 			event: github.PullRequestEvent{
-				Action: "synchronize",
+				Action: github.PullRequestActionSynchronize,
 				PullRequest: github.PullRequest{
 					Number: 101,
 					Base: github.PullRequestBranch{
@@ -275,7 +275,7 @@ func TestHandlePullRequest(t *testing.T) {
 		{
 			name: "pr_synchronize, with RemoveLabel github.LabelNotFound error",
 			event: github.PullRequestEvent{
-				Action: "synchronize",
+				Action: github.PullRequestActionSynchronize,
 				PullRequest: github.PullRequest{
 					Number: 101,
 					Base: github.PullRequestBranch{

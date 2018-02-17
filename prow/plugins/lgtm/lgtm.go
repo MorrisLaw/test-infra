@@ -153,7 +153,7 @@ func handlePullRequest(gc ghLabelClient, pe github.PullRequestEvent) error {
 		return nil
 	}
 
-	if pe.Action != "synchronize" {
+	if pe.Action != github.PullRequestActionSynchronize {
 		return nil
 	}
 
