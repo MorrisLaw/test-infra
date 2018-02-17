@@ -42,15 +42,6 @@ func init() {
 	}, helpProvider)
 }
 
-// func init() {
-// 	plugins.RegisterIssueCommentHandler(pluginName, handleIssueComment)
-// 	plugins.RegisterReviewEventHandler(pluginName, handleReview)
-// 	plugins.RegisterReviewCommentEventHandler(pluginName, handleReviewComment)
-// 	plugins.RegisterPullRequestHandler(pluginName, func(pc plugins.PluginClient, pe github.PullRequestEvent) error {
-// 		return handlePullRequest(pc.GitHubClient, pe)
-// 	})
-// }
-
 func helpProvider(config *plugins.Configuration, enabledRepos []string) (*pluginhelp.PluginHelp, error) {
 	// The Config field is omitted because this plugin is not configurable.
 	pluginHelp := &pluginhelp.PluginHelp{
