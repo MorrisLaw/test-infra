@@ -1000,11 +1000,6 @@ func (c *Client) RemoveLabel(org, repo string, number int, label string) error {
 		exitCodes: []int{200, 204, 404},
 	}, &ge)
 
-	// If we saw an opaque error, pass it up.
-	if err != nil {
-		return err
-	}
-
 	// If our code was 200 or 204, no error info.
 	if code != 404 {
 		return nil
@@ -1018,6 +1013,11 @@ func (c *Client) RemoveLabel(org, repo string, number int, label string) error {
 			Number: number,
 			Label:  label,
 		}
+	}
+
+	// If we saw an opaque error, pass it up.
+	if err != nil {
+		return err
 	}
 
 	// Otherwise we got some other 404 error.
