@@ -1,5 +1,5 @@
 /*
-Copyright 2016 The Kubernetes Authors.
+Copyright 2018 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,52 +16,40 @@ limitations under the License.
 
 package main
 
-import (
-	"testing"
-
-	"k8s.io/test-infra/prow/plugins"
-)
-
-// Make sure that our plugins are valid.
-func TestPlugins(t *testing.T) {
-	pa := &plugins.PluginAgent{}
-	if err := pa.Load("../../plugins.yaml"); err != nil {
-		t.Fatalf("Could not load plugins: %v.", err)
-	}
-}
+import "testing"
 
 func TestOptions_Validate(t *testing.T) {
 	var testCases = []struct {
 		name        string
-		opt         options
+		input       options
 		expectedErr bool
 	}{
 		{
-			name: "all ok without dry-run",
-			opt: options{
-				dryRun: false,
+			name: "all ok",
+			input: options{
+				srcRoot: "test",
+				log:     "thing",
 			},
 			expectedErr: false,
 		},
 		{
-			name: "all ok with dry-run",
-			opt: options{
-				dryRun:  true,
-				deckURL: "internet",
+			name: "missing src root",
+			input: options{
+				log: "thing",
 			},
-			expectedErr: false,
+			expectedErr: true,
 		},
 		{
-			name: "missing deck endpoint with dry-run",
-			opt: options{
-				dryRun: true,
+			name: "missing log location",
+			input: options{
+				srcRoot: "test",
 			},
 			expectedErr: true,
 		},
 	}
 
 	for _, testCase := range testCases {
-		err := testCase.opt.Validate()
+		err := testCase.input.Validate()
 		if testCase.expectedErr && err == nil {
 			t.Errorf("%s: expected an error but got none", testCase.name)
 		}
