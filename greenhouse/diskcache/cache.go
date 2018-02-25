@@ -25,7 +25,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"time"
 
@@ -187,55 +186,4 @@ func (c *Cache) GetEntries() []EntryInfo {
 // Delete deletes the file at key
 func (c *Cache) Delete(key string) error {
 	return os.Remove(c.KeyToPath(key))
-}
-
-// MonitorDiskAndEvict loops monitoring the disk, evicting cache entries
-// when the disk passes either minPercentBlocksFree or minPercentFilesFree
-func (c *Cache) MonitorDiskAndEvict(interval time.Duration, minPercentBlocksFree, minPercentFilesFree float64) {
-	// forever check if usage is past thresholds and evict
-	for range time.Tick(interval) {
-		blocksFree, filesFree, err := diskutil.GetDiskUsage(c.diskRoot)
-		if err != nil {
-			logrus.WithError(err).Error("Failed to get disk usage!")
-			continue
-		}
-		logger := logrus.WithFields(logrus.Fields{
-			"blocks-free": blocksFree,
-			"files-free":  filesFree,
-		})
-		logger.Info("monitorDiskAndEvict tick")
-		// if we are past either threshold, evict until we are not
-		if blocksFree < minPercentBlocksFree || filesFree < minPercentFilesFree {
-			logger.Warn("Eviction triggered")
-			// get all cache entries and sort by lastaccess
-			// so we can pop entries until we have evicted enough
-			files := c.GetEntries()
-			sort.Slice(files, func(i, j int) bool {
-				return files[i].LastAccess.Before(files[j].LastAccess)
-			})
-			// actual eviction loop occurs here
-			for blocksFree < minPercentBlocksFree || filesFree < minPercentFilesFree {
-				logger = logrus.WithFields(logrus.Fields{
-					"blocks-free": blocksFree,
-					"files-free":  filesFree,
-				})
-				if len(files) < 1 {
-					logger.Fatal("Failed to find entries to evict!")
-				}
-				// pop entry and delete
-				var entry EntryInfo
-				entry, files = files[0], files[1:]
-				err = c.Delete(c.PathToKey(entry.Path))
-				if err != nil {
-					logger.WithError(err).Errorf("Error deleting entry at path: %v", entry.Path)
-				}
-				// get new disk usage
-				blocksFree, filesFree, err = diskutil.GetDiskUsage(c.diskRoot)
-				if err != nil {
-					logrus.WithError(err).Error("Failed to get disk usage!")
-					continue
-				}
-			}
-		}
-	}
 }

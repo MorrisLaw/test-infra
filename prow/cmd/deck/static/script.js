@@ -549,30 +549,41 @@ function createRerunCell(modal, rerun_command, prowjob) {
 
 function stateCell(state) {
     const c = document.createElement("td");
-    c.className = state;
+    c.classList.add("icon-cell");
 
     let displayState = "";
+    let displayIcon = "";
     switch (state) {
+        case "triggered":
+            displayState = "Triggered";
+            displayIcon = "schedule";
+            break
         case "pending":
             displayState = "Pending";
+            displayIcon = "watch_later";
             break;
         case "success":
-            displayState = "Successful";
+            displayState = "Succeded";
+            displayIcon = "check_circle";
             break;
         case "failure":
             displayState = "Failed";
+            displayIcon = "error";
             break;
         case "aborted":
             displayState = "Aborted";
+            displayIcon = "remove_circle";
             break;
         case "error":
             displayState = "Error";
+            displayIcon = "warning";
             break;
     }
-    const stateIndicator = document.createElement("DIV");
-    stateIndicator.classList.add(...["state", state]);
+    const stateIndicator = document.createElement("I");
+    stateIndicator.classList.add("material-icons", "state", state);
+    stateIndicator.innerText = displayIcon;
     c.appendChild(stateIndicator);
-    c.title = displayState + " job";
+    c.title = displayState;
 
     return c;
 }

@@ -13,6 +13,7 @@ triggers:
   - tensorflow/k8s
   - tensorflow/minigo
   - GoogleCloudPlatform/k8s-multicluster-ingress
+  - GoogleCloudPlatform/k8s-tpu-operator
   trusted_org: kubernetes
   join_org_url: "https://git.k8s.io/community/community-membership.md#member"
 - repos:
@@ -40,6 +41,8 @@ approve:
   - kubernetes/dashboard
   - kubernetes/features
   - kubernetes/federation
+  - kubernetes/gengo
+  - kubernetes/heapster
   - kubernetes/ingress-nginx
   - kubernetes/kops
   - kubernetes/kube-deploy
@@ -51,6 +54,7 @@ approve:
   - kubernetes/sig-release
   - kubernetes/steering
   - kubernetes/test-infra
+  - GoogleCloudPlatform/k8s-tpu-operator
   implicit_self_approve: true
 - repos:
   - kubernetes-sigs
@@ -197,7 +201,12 @@ plugins:
   - trigger
   - approve
 
+  kubernetes/gengo:
+  - approve
+
   kubernetes/heapster:
+  - approve
+  - blunderbuss
   - trigger
 
   kubernetes/kops:
@@ -299,6 +308,7 @@ plugins:
   - cat
   - cla
   - dog
+  - golint
   - heart
   - help
   - hold
@@ -308,6 +318,7 @@ plugins:
   - shrug
   - size
   - skip
+  - trigger
   - wip
   - yuks
 
@@ -340,6 +351,18 @@ plugins:
   GoogleCloudPlatform/k8s-multicluster-ingress:
   - trigger
 
+  GoogleCloudPlatform/k8s-tpu-operator:
+  - approve
+  - assign
+  - blunderbuss
+  - hold
+  - label
+  - lgtm
+  - lifecycle
+  - size
+  - trigger
+  - wip
+
 external_plugins:
   kubernetes/community:
   - name: needs-rebase
@@ -354,6 +377,10 @@ external_plugins:
     events:
       - pull_request
   kubernetes/kubernetes:
+  - name: needs-rebase
+    events:
+      - pull_request
+  kubernetes/test-infra:
   - name: needs-rebase
     events:
       - pull_request

@@ -319,14 +319,6 @@ func TestHandlePullRequest(t *testing.T) {
 				t.Logf("labelsRemoved: got %v, want: %v", fakeGitHub.labelsRemoved, c.labelsRemoved)
 				t.Fatalf("labelsRemoved length mismatch: got %d, want %d", got, want)
 			}
-
-			for i, k := range c.labelsRemoved {
-				if got, want := k, fakeGitHub.labelsRemoved[i]; got != want {
-					t.Logf("labelsRemoved: got %v, want: %v", fakeGitHub.labelsRemoved, c.labelsRemoved)
-					t.Fatalf("at index %d got key: %s, want key: %s", i, got, want)
-					break
-				}
-			}
 		})
 	}
 }

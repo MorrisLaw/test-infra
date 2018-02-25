@@ -224,23 +224,33 @@ test_groups:
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gci-gce-autoscaling-migs
 - name: ci-kubernetes-e2e-autoscaling-vpa-recommender
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-autoscaling-vpa-recommender
+- name: ci-kubernetes-e2e-autoscaling-vpa-updater
+  gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-autoscaling-vpa-updater
+- name: ci-kubernetes-e2e-autoscaling-vpa-admission-controller
+  gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-autoscaling-vpa-admission-controller
+- name: ci-kubernetes-e2e-autoscaling-vpa-full
+  gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-autoscaling-vpa-full
 - name: ci-kubernetes-e2e-gce-stackdriver
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gce-stackdriver
 - name: ci-kubernetes-e2e-gce-large-correctness
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gce-large-correctness
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gce-large-performance
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gce-large-performance
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gce-scale-correctness
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gce-scale-correctness
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gce-scale-performance
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gce-scale-performance
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gci-gce-es-logging
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gci-gce-es-logging
@@ -363,6 +373,8 @@ test_groups:
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gci-gke-alpha-features
 - name: ci-kubernetes-e2e-gci-gke-autoscaling
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gci-gke-autoscaling
+- name: ci-kubernetes-e2e-gci-gke-autoscaling-regional
+  gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gci-gke-autoscaling-regional
 - name: ci-kubernetes-e2e-gke-stackdriver
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gke-stackdriver
 - name: ci-kubernetes-e2e-gke-sd-logging-gci-latest
@@ -391,10 +403,12 @@ test_groups:
 - name: ci-kubernetes-e2e-gke-large-correctness
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gke-large-correctness
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gke-large-performance
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gke-large-performance
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gci-gke-multizone
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gci-gke-multizone
@@ -403,6 +417,7 @@ test_groups:
 - name: ci-kubernetes-e2e-gke-scale-correctness
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gke-scale-correctness
   days_of_results: 60
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-e2e-gke-prod
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-e2e-gke-prod
@@ -460,6 +475,7 @@ test_groups:
   num_failures_to_alert: 1
 - name: ci-kubernetes-kubemark-gce-scale
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-kubemark-gce-scale
+  num_columns_recent: 3
   num_failures_to_alert: 1
 - name: ci-kubernetes-kubemark-high-density-100-gce
   gcs_prefix: kubernetes-jenkins/logs/ci-kubernetes-kubemark-high-density-100-gce
@@ -3611,6 +3627,8 @@ dashboards:
     test_group_name: ci-kubernetes-e2e-gci-gce-autoscaling-migs
   - name: gci-gke-autoscaling
     test_group_name: ci-kubernetes-e2e-gci-gke-autoscaling
+  - name: gci-gke-autoscaling-regional
+    test_group_name: ci-kubernetes-e2e-gci-gke-autoscaling-regional
   - name: gke-ubuntustable1-k8sdev-autoscaling
     test_group_name: ci-kubernetes-e2e-gke-ubuntustable1-k8sdev-autoscaling
   - name: gke-ubuntustable1-k8sstable1-autoscaling
@@ -3619,6 +3637,12 @@ dashboards:
     test_group_name: ci-kubernetes-e2e-gke-ubuntustable1-k8sstable2-autoscaling
   - name: autoscaling-vpa-recommender
     test_group_name: ci-kubernetes-e2e-autoscaling-vpa-recommender
+  - name: autoscaling-vpa-updater
+    test_group_name: ci-kubernetes-e2e-autoscaling-vpa-updater
+  - name: autoscaling-vpa-admission-controller
+    test_group_name: ci-kubernetes-e2e-autoscaling-vpa-admission-controller
+  - name: autoscaling-vpa-full
+    test_group_name: ci-kubernetes-e2e-autoscaling-vpa-full
 
 - name: sig-cli-master
   dashboard_tab:

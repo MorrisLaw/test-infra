@@ -300,7 +300,7 @@ func (c *Client) requestRetry(method, path, accept string, body interface{}) (*h
 	var err error
 	backoff := initialDelay
 	for retries := 0; retries < maxRetries; retries++ {
-		if retries > 0 {
+		if retries > 0 && resp != nil {
 			resp.Body.Close()
 		}
 		resp, err = c.doRequest(method, path, accept, body)
@@ -973,8 +973,8 @@ func (c *Client) AddLabel(org, repo string, number int, label string) error {
 	return err
 }
 
-// Use LabelNotFound to indicate that a label is not attached to an issue.
-// For example, removing a label from an issue, when the issue does not have that label.
+// LabelNotFound to indicate that a label is not attached to an issue. For example, removing
+// a label from an issue, when the issue does not have that label.
 type LabelNotFound struct {
 	Owner, Repo string
 	Number      int
@@ -1437,25 +1437,23 @@ func (e UnmergablePRBaseChangedError) Error() string { return string(e) }
 // Merge merges a PR.
 func (c *Client) Merge(org, repo string, pr int, details MergeDetails) error {
 	c.log("Merge", org, repo, pr, details)
-	var res struct {
-		Message string `json:"message"`
-	}
+	ge := githubError{}
 	ec, err := c.request(&request{
 		method:      http.MethodPut,
 		path:        fmt.Sprintf("%s/repos/%s/%s/pulls/%d/merge", c.base, org, repo, pr),
 		requestBody: &details,
 		exitCodes:   []int{200, 405, 409},
-	}, &res)
+	}, &ge)
 	if err != nil {
 		return err
 	}
 	if ec == 405 {
-		if strings.Contains(res.Message, "Base branch was modified") {
-			return UnmergablePRBaseChangedError(res.Message)
+		if strings.Contains(ge.Message, "Base branch was modified") {
+			return UnmergablePRBaseChangedError(ge.Message)
 		}
-		return UnmergablePRError(res.Message)
+		return UnmergablePRError(ge.Message)
 	} else if ec == 409 {
-		return ModifiedHeadError(res.Message)
+		return ModifiedHeadError(ge.Message)
 	}
 
 	return nil
